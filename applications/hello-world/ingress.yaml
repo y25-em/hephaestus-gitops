@@ -4,6 +4,7 @@ metadata:
   name: hello-world
   annotations:
     nginx.ingress.kubernetes.io/rewrite-target: /$2
+    argocd.argoproj.io/external-link: http://avon.orb.local/hello-world
 spec:
   ingressClassName: nginx
   rules:
