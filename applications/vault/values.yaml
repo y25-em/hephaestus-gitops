@@ -50,17 +50,18 @@ vault:
         cpu: 500m
         memory: 512Mi
 
+    # OrbStack resolves <machine>.orb.local, but not *.<machine>.orb.local: a name
+    # like vault.avon.orb.local hits its own HTTP proxy, which knows nothing about
+    # it and answers a plain-text 404 without ever reaching the node. Vault's UI
+    # redirects to an absolute /ui/ path, so it cannot share avon.orb.local with
+    # the other apps under a subpath either. A NodePort sidesteps both, the way
+    # Argo CD is already exposed.
+    service:
+      type: NodePort
+      nodePort: 30820
+
     ingress:
-      enabled: true
-      ingressClassName: nginx
-      pathType: Prefix
-      # Vault's UI redirects to an absolute /ui/ path, so it cannot live under a
-      # subpath like the other apps. OrbStack resolves any *.avon.orb.local name
-      # to the avon node, which gives Vault its own host for free.
-      hosts:
-        - host: vault.avon.orb.local
-          paths:
-            - /
+      enabled: false
 
   # The UI is served by the server listener above; a separate service is not
   # needed for the ingress to reach it.
