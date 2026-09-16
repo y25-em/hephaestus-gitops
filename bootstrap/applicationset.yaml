@@ -1,0 +1,40 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: hephaestus-applications
+  namespace: argocd
+spec:
+  goTemplate: true
+  goTemplateOptions:
+    - missingkey=error
+
+  generators:
+    - git:
+        repoURL: https://github.com/y25-em/hephaestus-gitops.git
+        revision: main
+        directories:
+          - path: applications/*
+
+  template:
+    metadata:
+      name: '{{.path.basenameNormalized}}'
+
+    spec:
+      project: default
+
+      source:
+        repoURL: https://github.com/y25-em/hephaestus-gitops.git
+        targetRevision: main
+        path: '{{.path.path}}'
+
+      destination:
+        server: https://kubernetes.default.svc
+        namespace: '{{.path.basenameNormalized}}'
+
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true
+
+        syncOptions:
+          - CreateNamespace=true
