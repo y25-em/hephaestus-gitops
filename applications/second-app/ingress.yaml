@@ -1,0 +1,19 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: second-app
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: avon.orb.local
+      http:
+        paths:
+          - path: /second-app
+            pathType: Prefix
+            backend:
+              service:
+                name: second-app
+                port:
+                  name: http
