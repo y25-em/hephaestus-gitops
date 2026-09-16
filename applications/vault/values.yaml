@@ -1,0 +1,68 @@
+# Values for the upstream chart are nested under its dependency name.
+vault:
+  global:
+    # Nothing issues certificates in this cluster, so Vault speaks plain HTTP and
+    # nginx terminates nothing. Do not copy this to anything but a lab.
+    tlsDisable: true
+
+  # The agent injector needs a MutatingWebhookConfiguration and its own TLS
+  # bootstrap. Enable it later, once the server itself is initialised.
+  injector:
+    enabled: false
+
+  server:
+    # Single pod with the file storage backend. Raft/HA needs three replicas and
+    # more storage than this lab warrants.
+    standalone:
+      enabled: true
+      config: |
+        ui = true
+
+        listener "tcp" {
+          address         = "[::]:8200"
+          cluster_address = "[::]:8201"
+          tls_disable     = 1
+        }
+
+        storage "file" {
+          path = "/vault/data"
+        }
+
+    ha:
+      enabled: false
+
+    dataStorage:
+      enabled: true
+      size: 2Gi
+      # local-path binds on first consumer, so the volume lands on whichever node
+      # schedules the pod and stays there.
+      storageClass: local-path
+      accessMode: ReadWriteOnce
+
+    auditStorage:
+      enabled: false
+
+    resources:
+      requests:
+        cpu: 100m
+        memory: 256Mi
+      limits:
+        cpu: 500m
+        memory: 512Mi
+
+    ingress:
+      enabled: true
+      ingressClassName: nginx
+      pathType: Prefix
+      # Vault's UI redirects to an absolute /ui/ path, so it cannot live under a
+      # subpath like the other apps. OrbStack resolves any *.avon.orb.local name
+      # to the avon node, which gives Vault its own host for free.
+      hosts:
+        - host: vault.avon.orb.local
+          paths:
+            - /
+
+  # The UI is served by the server listener above; a separate service is not
+  # needed for the ingress to reach it.
+  ui:
+    enabled: false
