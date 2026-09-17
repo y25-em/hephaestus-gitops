@@ -1,0 +1,19 @@
+# Values for the upstream chart are nested under its dependency name.
+vault-secrets-operator:
+  # VaultConnection/VaultAuth are declared per application alongside the
+  # VaultStaticSecret that uses them, so no cluster-wide default is installed.
+  defaultVaultConnection:
+    enabled: false
+
+  defaultAuthMethod:
+    enabled: false
+
+  controller:
+    manager:
+      resources:
+        requests:
+          cpu: 50m
+          memory: 128Mi
+        limits:
+          cpu: 250m
+          memory: 256Mi

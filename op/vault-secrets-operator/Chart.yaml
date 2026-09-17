@@ -1,0 +1,13 @@
+apiVersion: v2
+name: vault-secrets-operator
+description: HashiCorp Vault Secrets Operator for the hephaestus lab cluster
+type: application
+version: 0.1.0
+
+# Same wrapper as applications/vault. The op/* directory generator in
+# bootstrap/applicationset.yaml already creates the Argo CD Application for this
+# path, so the path itself must contain the workload, not another Application.
+dependencies:
+  - name: vault-secrets-operator
+    version: 1.5.1
+    repository: https://helm.releases.hashicorp.com
